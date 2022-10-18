@@ -1,0 +1,4 @@
+include:
+  - project: 'adexos/research/ci-templates'
+    ref: main
+    file: 'utils/autotag.yml'

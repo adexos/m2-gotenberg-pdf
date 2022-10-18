@@ -1,0 +1,21 @@
+{
+    "name": "adexos/m2-gotenberg-pdf",
+    "description": "Adexos Gotenberg service Magento 2 module",
+    "require": {
+        "php": "^7.4 || ^8.0",
+        "defuse/php-encryption": ">= 2.2",
+        "symfony/http-client": ">= 4.4",
+        "nyholm/psr7": "^1.4",
+        "guzzlehttp/psr7": "^1.4 || ^2.0"
+    },
+    "type": "magento2-module",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Adexos\\Gotenberg\\": ""
+        }
+    }
+}
+
