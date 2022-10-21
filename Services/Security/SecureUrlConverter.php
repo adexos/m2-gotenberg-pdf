@@ -11,6 +11,7 @@ use Defuse\Crypto\Key;
 use Exception;
 use JsonException;
 use Magento\Framework\App\RequestInterfaceFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Psr\Log\LoggerInterface;
 
@@ -35,39 +36,38 @@ class SecureUrlConverter
     /**
      * Useful method to encode URL params that are passed to the request
      *
-     * @throws BadFormatException
-     * @throws EnvironmentIsBrokenException
-     * @throws JsonException
+     * @throws LocalizedException
      */
     public function encode(string $relativeUrl, array $routeParams): string
     {
-        $key = $this->getEncryptionKey();
+        try {
+            $key = $this->getEncryptionKey();
 
-        return $this->url->getUrl(
-            $relativeUrl,
-            [
-                '_query' => [
-                    'key' => base64_encode(
-                        Crypto::encrypt(
-                            json_encode($routeParams, JSON_THROW_ON_ERROR),
-                            Key::loadFromAsciiSafeString($key)
+            return $this->url->getUrl(
+                $relativeUrl,
+                [
+                    '_query' => [
+                        'key' => base64_encode(
+                            Crypto::encrypt(
+                                json_encode($routeParams, JSON_THROW_ON_ERROR),
+                                Key::loadFromAsciiSafeString($key)
+                            )
                         )
-                    )
+                    ]
                 ]
-            ]
-        );
+            );
+        } catch (Exception $e) {
+            throw new LocalizedException(__('Failed to decode secure URL.'), $e);
+        }
     }
 
-    /**
-     * @throws EnvironmentIsBrokenException
-     */
     public function decodeParams(string $url): array
     {
         $request = $this->requestFactory->create(['url' => $url]);
 
-        $key = $this->getEncryptionKey();
-
         try {
+            $key = $this->getEncryptionKey();
+
             return json_decode(
                 Crypto::decrypt(
                     base64_decode($request->getParam('key', '')),
