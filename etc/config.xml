@@ -5,6 +5,7 @@
         <gotenberg>
             <configuration>
                 <endpoint>http://gotenberg:3000</endpoint>
+                <encryption_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
             </configuration>
         </gotenberg>
     </default>
