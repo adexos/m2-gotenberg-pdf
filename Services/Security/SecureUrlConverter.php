@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Adexos\Gotenberg\Services\Security;
 
+use Adexos\Gotenberg\Model\Config;
 use Defuse\Crypto\Crypto;
-use Defuse\Crypto\Exception\BadFormatException;
-use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
 use Defuse\Crypto\Key;
 use Exception;
-use JsonException;
 use Magento\Framework\App\RequestInterfaceFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
@@ -23,14 +21,18 @@ class SecureUrlConverter
 
     private LoggerInterface $logger;
 
+    private Config $config;
+
     public function __construct(
         UrlInterface $url,
         RequestInterfaceFactory $requestFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Config $config
     ) {
         $this->url = $url;
         $this->requestFactory = $requestFactory;
         $this->logger = $logger;
+        $this->config = $config;
     }
 
     /**
@@ -41,7 +43,7 @@ class SecureUrlConverter
     public function encode(string $relativeUrl, array $routeParams): string
     {
         try {
-            $key = $this->getEncryptionKey();
+            $key = $this->config->getEncryptionKey();
 
             return $this->url->getUrl(
                 $relativeUrl,
@@ -66,7 +68,7 @@ class SecureUrlConverter
         $request = $this->requestFactory->create(['url' => $url]);
 
         try {
-            $key = $this->getEncryptionKey();
+            $key = $this->config->getEncryptionKey();
 
             return json_decode(
                 Crypto::decrypt(
@@ -82,28 +84,5 @@ class SecureUrlConverter
 
             return [];
         }
-    }
-
-    /**
-     * @return false|string
-     * @throws EnvironmentIsBrokenException
-     */
-    private function getEncryptionKey()
-    {
-        $storedKeyPath = sprintf('%s/gotenberg_key.txt', sys_get_temp_dir());
-
-        /** @noinspection PhpUsageOfSilenceOperatorInspection */
-        $key = @file_get_contents($storedKeyPath);
-
-        if (!$key) {
-            file_put_contents(
-                $storedKeyPath,
-                (Key::createNewRandomKey())->saveToAsciiSafeString()
-            );
-
-            $key = file_get_contents($storedKeyPath);
-        }
-
-        return $key;
     }
 }
