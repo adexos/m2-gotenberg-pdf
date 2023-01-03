@@ -6,6 +6,8 @@ namespace Adexos\Gotenberg\Model;
 
 use Defuse\Crypto\Exception\EnvironmentIsBrokenException;
 use Defuse\Crypto\Key;
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\App\Cache\Type\Config as CacheConfig;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -21,14 +23,18 @@ class Config
 
     private EncryptorInterface $encryptor;
 
+    private Manager $cacheManager;
+
     public function __construct(
         ScopeConfigInterface $scopeConfig,
         WriterInterface $configWriter,
-        EncryptorInterface $encryptor
+        EncryptorInterface $encryptor,
+        Manager $cacheManager
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->configWriter = $configWriter;
         $this->encryptor = $encryptor;
+        $this->cacheManager = $cacheManager;
     }
 
     public function getEndpoint(): string
@@ -52,6 +58,8 @@ class Config
             self::XML_PATH_ENCRYPTION_KEY_GOTENBERG_PDF,
             $this->encryptor->encrypt($key)
         );
+
+        $this->cacheManager->clean([CacheConfig::TYPE_IDENTIFIER]);
 
         return $key;
     }
