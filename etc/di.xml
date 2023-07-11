@@ -3,4 +3,9 @@
     xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="Adexos\Gotenberg\Services\PdfServiceInterface"
         type="Adexos\Gotenberg\Services\GotenbergPdfService"/>
+    <type name="Adexos\Gotenberg\Cron\CleanFiles">
+        <arguments>
+            <argument name="subMediaDirectories" xsi:type="array"/>
+        </arguments>
+    </type>
 </config>
