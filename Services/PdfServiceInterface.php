@@ -19,5 +19,7 @@ interface PdfServiceInterface
         array $pdfOptions = []
     ): string;
 
+    public function convertWithoutCreateFile(string $urlToConvert,array $pdfOptions = []): string;
+
     public function isOnline(): bool;
 }

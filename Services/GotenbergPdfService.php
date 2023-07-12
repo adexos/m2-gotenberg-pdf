@@ -82,12 +82,8 @@ class GotenbergPdfService implements PdfServiceInterface
             return $absolutePath;
         }
 
-        $request = $this->prepareRequest($urlToConvert, $pdfOptions);
-
         try {
-            $result = $this->getClient()->sendRequest($request);
-
-            $directory->writeFile($relativePath, $result->getBody()->getContents());
+            $directory->writeFile($relativePath, $this->convertWithoutCreateFile($urlToConvert, $pdfOptions));
         } catch (Exception $e) {
             $this->logger->error($e, ['context' => 'adx_gotenberg']);
 
@@ -100,6 +96,21 @@ class GotenbergPdfService implements PdfServiceInterface
         );
 
         return $absolutePath;
+    }
+
+    public function convertWithoutCreateFile(string $urlToConvert, array $pdfOptions = []): string {
+
+        $request = $this->prepareRequest($urlToConvert, $pdfOptions);
+
+        try {
+            $result = $this->getClient()->sendRequest($request);
+
+            return $result->getBody()->getContents();
+        } catch (Exception $e) {
+            $this->logger->error($e, ['context' => 'adx_gotenberg']);
+
+            throw new GotenbergConvertException(__('Failed converting PDF'), $e);
+        }
     }
 
     /**
