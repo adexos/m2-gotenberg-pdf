@@ -10,7 +10,7 @@ use Magento\Framework\Phrase;
 
 class GotenbergConvertException extends LocalizedException
 {
-  public function __construct(Phrase $phrase, Exception $cause = null)
+  public function __construct(Phrase $phrase, ?Exception $cause = null)
   {
       parent::__construct(
           $phrase,
