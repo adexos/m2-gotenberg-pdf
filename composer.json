@@ -1,6 +1,13 @@
 {
     "name": "adexos/m2-gotenberg-pdf",
     "description": "Adexos Gotenberg service Magento 2 module",
+    "license": "MIT",
+    "homepage": "https://github.com/adexos/m2-gotenberg-pdf",
+    "keywords": ["magento2", "gotenberg", "pdf"],
+    "support": {
+        "source": "https://github.com/adexos/m2-gotenberg-pdf",
+        "issues": "https://github.com/adexos/m2-gotenberg-pdf/issues"
+    },
     "require": {
         "php": "^7.4 || ^8.0",
         "defuse/php-encryption": ">= 2.2",
