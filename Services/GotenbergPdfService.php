@@ -151,7 +151,7 @@ class GotenbergPdfService implements PdfServiceInterface
         );
 
         $body = new MultipartStream([
-            ['name' => 'url', 'contents' => $urlToConvert],
+            ['name' => 'url', 'contents' => $this->applySourceBaseUrl($urlToConvert)],
             ['name' => 'emulatedMediaType', 'contents' => 'screen'],
             ...$pdfOptions
         ]);
@@ -162,5 +162,25 @@ class GotenbergPdfService implements PdfServiceInterface
                 sprintf('multipart/form-data; boundary="%s"', $body->getBoundary())
             )
             ->withBody($body);
+    }
+
+    private function applySourceBaseUrl(string $url): string
+    {
+        $base = parse_url($this->config->getSourceBaseUrl());
+        if (empty($base['scheme']) || empty($base['host'])) {
+            return $url;
+        }
+
+        $parts = parse_url($url);
+        if ($parts === false) {
+            return $url;
+        }
+
+        $port = isset($base['port']) ? ':' . $base['port'] : '';
+
+        return sprintf('%s://%s%s', $base['scheme'], $base['host'], $port)
+            . ($parts['path'] ?? '')
+            . (isset($parts['query']) ? '?' . $parts['query'] : '')
+            . (isset($parts['fragment']) ? '#' . $parts['fragment'] : '');
     }
 }
