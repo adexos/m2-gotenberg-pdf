@@ -15,6 +15,7 @@ use Magento\Framework\Encryption\EncryptorInterface;
 class Config
 {
     public const XML_PATH_SERVER_ENDPOINT_GOTENBERG_PDF = 'gotenberg/configuration/endpoint';
+    public const XML_PATH_SOURCE_BASE_URL_GOTENBERG_PDF = 'gotenberg/configuration/source_base_url';
     public const XML_PATH_ENCRYPTION_KEY_GOTENBERG_PDF = 'gotenberg/configuration/encryption_key';
 
     private ScopeConfigInterface $scopeConfig;
@@ -42,6 +43,10 @@ class Config
         return $this->scopeConfig->getValue(self::XML_PATH_SERVER_ENDPOINT_GOTENBERG_PDF);
     }
 
+    public function getSourceBaseUrl(): string
+    {
+        return trim((string) $this->scopeConfig->getValue(self::XML_PATH_SOURCE_BASE_URL_GOTENBERG_PDF));
+    }
 
     /**
      * @throws EnvironmentIsBrokenException
