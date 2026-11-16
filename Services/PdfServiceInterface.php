@@ -21,5 +21,12 @@ interface PdfServiceInterface
 
     public function convertWithoutCreateFile(string $urlToConvert,array $pdfOptions = []): string;
 
+    /**
+     * @param string $html Full HTML document, self-contained (inline CSS).
+     *
+     * @return string The PDF content.
+     */
+    public function convertHtml(string $html, array $pdfOptions = []): string;
+
     public function isOnline(): bool;
 }

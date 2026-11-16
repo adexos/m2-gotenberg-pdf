@@ -23,6 +23,7 @@ use Symfony\Component\HttpClient\Psr18Client;
 class GotenbergPdfService implements PdfServiceInterface
 {
     private const GOTENBERG_CHROMIUM_ENDPOINT = 'forms/chromium/convert/url';
+    private const GOTENBERG_CHROMIUM_HTML_ENDPOINT = 'forms/chromium/convert/html';
 
     private ?ClientInterface $client = null;
 
@@ -98,10 +99,30 @@ class GotenbergPdfService implements PdfServiceInterface
         return $absolutePath;
     }
 
-    public function convertWithoutCreateFile(string $urlToConvert, array $pdfOptions = []): string {
+    public function convertWithoutCreateFile(string $urlToConvert, array $pdfOptions = []): string
+    {
+        return $this->send(
+            $this->prepareRequest(
+                self::GOTENBERG_CHROMIUM_ENDPOINT,
+                ['name' => 'url', 'contents' => $urlToConvert],
+                $pdfOptions
+            )
+        );
+    }
 
-        $request = $this->prepareRequest($urlToConvert, $pdfOptions);
+    public function convertHtml(string $html, array $pdfOptions = []): string
+    {
+        return $this->send(
+            $this->prepareRequest(
+                self::GOTENBERG_CHROMIUM_HTML_ENDPOINT,
+                ['name' => 'files', 'contents' => $html, 'filename' => 'index.html'],
+                $pdfOptions
+            )
+        );
+    }
 
+    private function send(RequestInterface $request): string
+    {
         try {
             $result = $this->getClient()->sendRequest($request);
 
@@ -143,15 +164,15 @@ class GotenbergPdfService implements PdfServiceInterface
         return $this->client;
     }
 
-    private function prepareRequest(string $urlToConvert, array $pdfOptions): RequestInterface
+    private function prepareRequest(string $path, array $source, array $pdfOptions): RequestInterface
     {
         $request = $this->getClient()->createRequest(
             'POST',
-            sprintf('%s/%s', $this->config->getEndpoint(), self::GOTENBERG_CHROMIUM_ENDPOINT)
+            sprintf('%s/%s', $this->config->getEndpoint(), $path)
         );
 
         $body = new MultipartStream([
-            ['name' => 'url', 'contents' => $urlToConvert],
+            $source,
             ['name' => 'emulatedMediaType', 'contents' => 'screen'],
             ...$pdfOptions
         ]);
